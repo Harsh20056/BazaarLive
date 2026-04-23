@@ -9,9 +9,10 @@ import {
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
-import { useAppSelector } from '../../store/hooks';
-import { shops, reviews, priceHistory } from '../../data/mockData';
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
+import { shops, priceHistory } from '../../data/mockData';
 import { Product } from '../../store/productSlice';
+import { addReview } from '../../store/reviewSlice';
 
 type CategoryFilter = 'All' | string;
 
@@ -61,12 +62,20 @@ function PriceComparison({ product, allProducts }: { product: Product; allProduc
 
 export function ShopDetail() {
   const { id } = useParams<{ id: string }>();
+  const dispatch = useAppDispatch();
   const allProducts = useAppSelector(s => s.products); 
   const user = useAppSelector(s => s.user);
+  const allReviews = useAppSelector(s => s.reviews.reviews);
 
   const shop = shops.find(s => s.id === id);
   const products = allProducts.filter(p => p.shopId === id);
-  const shopReviews = reviews.filter(r => r.shopId === id);
+  const shopReviews = allReviews.filter(r => r.shopId === id);
+  
+  // Calculate dynamic rating and review count
+  const reviewCount = shopReviews.length;
+  const averageRating = reviewCount > 0 
+    ? Math.round((shopReviews.reduce((sum, review) => sum + review.rating, 0) / reviewCount) * 10) / 10
+    : shop?.rating || 0;
 
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('All');
   const [expandedProduct, setExpandedProduct] = useState<string | null>(null);
@@ -80,11 +89,20 @@ export function ShopDetail() {
     e.preventDefault();
     if (!reviewForm.rating || !reviewForm.comment.trim()) return;
     
-    // In a real app, this would submit to the backend
-    // For now, we'll just show a success message and reset the form
-    alert('Review submitted successfully!');
+    // Dispatch the review to Redux store
+    dispatch(addReview({
+      shopId: id!,
+      buyerName: user.name,
+      rating: reviewForm.rating,
+      comment: reviewForm.comment.trim(),
+    }));
+    
+    // Reset form and show success
     setReviewForm({ rating: 0, comment: '' });
     setShowReviewForm(false);
+    
+    // Show success message
+    alert('Review submitted successfully!');
   };
 
   if (!shop) {
@@ -152,8 +170,8 @@ export function ShopDetail() {
               <div className="hidden sm:flex flex-col items-end gap-1">
                 <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-xl px-3 py-2">
                   <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
-                  <span className="text-white" style={{ fontWeight: 800, fontSize: '1.1rem' }}>{shop.rating}</span>
-                  <span className="text-white/60 text-sm">({shop.reviewCount})</span>
+                  <span className="text-white" style={{ fontWeight: 800, fontSize: '1.1rem' }}>{averageRating}</span>
+                  <span className="text-white/60 text-sm">({reviewCount})</span>
                 </div>
                 <p className="text-white/60 text-xs">Member since {shop.memberSince}</p>
               </div>
@@ -167,10 +185,10 @@ export function ShopDetail() {
         <div className="sm:hidden flex items-center gap-3 mb-6 bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
           <div className="flex items-center gap-1.5">
             <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
-            <span className="text-slate-900" style={{ fontWeight: 800 }}>{shop.rating}</span>
+            <span className="text-slate-900" style={{ fontWeight: 800 }}>{averageRating}</span>
           </div>
           <span className="text-slate-400">•</span>
-          <span className="text-slate-600 text-sm">{shop.reviewCount} reviews</span>
+          <span className="text-slate-600 text-sm">{reviewCount} reviews</span>
           <span className="text-slate-400">•</span>
           <span className="text-slate-600 text-sm">{shop.distance}km away</span>
         </div>
@@ -345,7 +363,7 @@ export function ShopDetail() {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-slate-900" style={{ fontWeight: 700, fontSize: '1.1rem' }}>
                   Customer Reviews
-                  <span className="text-slate-400 text-sm ml-2" style={{ fontWeight: 400 }}>({shopReviews.length})</span>
+                  <span className="text-slate-400 text-sm ml-2" style={{ fontWeight: 400 }}>({reviewCount})</span>
                 </h2>
                 <button
                   onClick={() => setShowReviewForm(!showReviewForm)}

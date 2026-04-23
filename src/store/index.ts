@@ -5,17 +5,19 @@ import { combineReducers } from '@reduxjs/toolkit';
 import productReducer from './productSlice';
 import userReducer from './userSlice';
 import demandReducer from './demandSlice';
+import reviewReducer from './reviewSlice';
 
 const persistConfig = {
   key: 'bazaar-live',
   storage,
-  whitelist: ['user', 'products', 'demands'], // Only persist these reducers
+  whitelist: ['user', 'products', 'demands', 'reviews'], // Only persist these reducers
 };
 
 const rootReducer = combineReducers({
   products: productReducer,
   user: userReducer,
   demands: demandReducer,
+  reviews: reviewReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

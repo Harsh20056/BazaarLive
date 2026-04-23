@@ -63,7 +63,7 @@ const steps = [
 
 const stats = [
   { value: '2,400+', label: 'Verified Shops', icon: Store },
-  { value: '₹0', label: 'Subscription Fee', icon: Package },
+  { value: '₹0', label: 'Commission Fee', icon: Package },
   { value: '5km', label: 'Radius Coverage', icon: MapPin },
   { value: '98%', label: 'Price Accuracy', icon: CheckCircle },
 ];
@@ -224,7 +224,7 @@ export function Landing() {
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 1 + fp.delay, duration: 0.4 }}
-                  className={`absolute ${i === 0 ? '-top-4 -left-4' : i === 1 ? '-bottom-4 left-8' : '-right-4 top-1/2'} bg-white rounded-xl shadow-lg px-3 py-2`}
+                  className={`absolute ${i === 0 ? '-top-6 -left-4' : i === 1 ? '-bottom-7 left-8' : '-right-9 top-1/2'} bg-white rounded-xl shadow-lg px-3 py-2`}
                 >
                   <p className="text-slate-800 text-xs" style={{ fontWeight: 600 }}>{fp.item}</p>
                   <div className="flex items-center gap-1.5">
@@ -418,14 +418,6 @@ export function Landing() {
             <span className="hover:text-slate-300 cursor-pointer">Privacy</span>
             <span className="hover:text-slate-300 cursor-pointer">Terms</span>
             <span className="hover:text-slate-300 cursor-pointer">Support</span>
-            <Link
-              to="/pdf-export"
-              className="flex items-center gap-1.5 text-orange-400 hover:text-orange-300 transition-colors"
-              style={{ fontWeight: 600 }}
-            >
-              <FileText className="w-4 h-4" />
-              UI Docs PDF
-            </Link>
           </div>
         </div>
       </footer>
