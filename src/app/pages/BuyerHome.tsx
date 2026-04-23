@@ -253,11 +253,11 @@ export function BuyerHome() {
               placeholder="Search shops by name, tags, or items they sell..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 shadow-sm"
+              className="w-full pl-10 pr-20 sm:pr-24 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 shadow-sm"
             />
             <Link
               to="/buyer/search"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-orange-500 hover:text-orange-600 text-sm"
+              className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-orange-500 hover:text-orange-600 text-xs sm:text-sm bg-white px-1 sm:px-0"
               style={{ fontWeight: 600 }}
             >
               Advanced

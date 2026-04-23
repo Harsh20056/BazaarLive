@@ -180,11 +180,11 @@ export function ShopDetail() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-6">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6">
         {/* Mobile rating */}
-        <div className="sm:hidden flex items-center gap-3 mb-6 bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+        <div className="sm:hidden flex items-center gap-2 sm:gap-3 mb-6 bg-white rounded-2xl p-3 sm:p-4 border border-slate-100 shadow-sm overflow-hidden">
           <div className="flex items-center gap-1.5">
-            <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
+            <Star className="w-4 sm:w-5 h-4 sm:h-5 text-amber-400 fill-amber-400" />
             <span className="text-slate-900" style={{ fontWeight: 800 }}>{averageRating}</span>
           </div>
           <span className="text-slate-400">•</span>
@@ -193,7 +193,7 @@ export function ShopDetail() {
           <span className="text-slate-600 text-sm">{shop.distance}km away</span>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Anti-Monopoly Warning Banner */}
@@ -247,7 +247,7 @@ export function ShopDetail() {
 
             {/* Products Table */}
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-              <div className="px-5 py-4 border-b border-slate-50 flex items-center justify-between">
+              <div className="px-3 sm:px-5 py-4 border-b border-slate-50 flex items-center justify-between">
                 <h2 className="text-slate-900" style={{ fontWeight: 700 }}>Live Price Board</h2>
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
@@ -266,10 +266,10 @@ export function ShopDetail() {
                   return (
                     <div key={product.id}>
                       <div
-                        className={`px-5 py-4 cursor-pointer hover:bg-slate-50 transition-colors ${isSpike ? 'bg-red-50/30' : ''}`}
+                        className={`px-3 sm:px-5 py-4 cursor-pointer hover:bg-slate-50 transition-colors ${isSpike ? 'bg-red-50/30' : ''}`}
                         onClick={() => setExpandedProduct(isExpanded ? null : product.id)}
                       >
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-start sm:items-center justify-between gap-2">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <p className={`text-slate-900 text-sm ${product.isFlagged ? 'line-through opacity-75' : ''}`} style={{ fontWeight: 600 }}>
@@ -281,17 +281,17 @@ export function ShopDetail() {
                                 </span>
                               )}
                             </div>
-                            <div className="flex items-center gap-2 mt-1">
+                            <div className="flex items-center gap-2 mt-1 flex-wrap">
                               <p className="text-slate-400 text-xs">{product.category} • {product.unit}</p>
-                              <span className="text-slate-300">•</span>
+                              <span className="text-slate-300 hidden sm:inline">•</span>
                               <PriceComparison product={product} allProducts={allProducts} />
                             </div>
                           </div>
-                          <div className="flex items-center gap-4 ml-3">
+                          <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 sm:gap-4 ml-2 sm:ml-3">
                             {/* Stock badge */}
-                            <div className={`flex items-center gap-1 ${cfg.bg} ${cfg.border} border rounded-lg px-2 py-1`}>
+                            <div className={`flex items-center gap-1 ${cfg.bg} ${cfg.border} border rounded-lg px-2 py-1 text-xs`}>
                               <div className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
-                              <span className={`text-xs ${cfg.color}`} style={{ fontWeight: 600 }}>
+                              <span className={`${cfg.color}`} style={{ fontWeight: 600 }}>
                                 {product.stockStatus}
                               </span>
                             </div>
@@ -314,7 +314,7 @@ export function ShopDetail() {
                           exit={{ opacity: 0, height: 0 }}
                           className="border-t border-slate-50 bg-slate-50/50"
                         >
-                          <div className="px-5 py-4">
+                          <div className="px-3 sm:px-5 py-4">
                             <div className="flex items-center justify-between mb-3">
                               <p className="text-slate-700 text-sm" style={{ fontWeight: 600 }}>
                                 7-Day Price Trend
@@ -488,16 +488,16 @@ export function ShopDetail() {
           {/* Sidebar */}
           <div className="space-y-4">
             {/* Shop Info Card */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 sm:p-5">
               <h3 className="text-slate-900 mb-4" style={{ fontWeight: 700 }}>Shop Info</h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
                     <MapPin className="w-4.5 h-4.5 text-slate-500" />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-slate-400 text-xs">Address</p>
-                    <p className="text-slate-700 text-sm" style={{ fontWeight: 500 }}>{shop.address}</p>
+                    <p className="text-slate-700 text-sm break-words" style={{ fontWeight: 500 }}>{shop.address}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
