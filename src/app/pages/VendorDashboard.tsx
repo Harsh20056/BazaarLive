@@ -1,19 +1,17 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  LayoutDashboard, Package, Bell, TrendingUp, AlertTriangle, CheckCircle,
-  ChevronDown, Save, RefreshCw, MessageCircle, Minus, Plus,
-  Clock, ArrowUpRight, ArrowDownRight, Zap, ThumbsUp, Crown
+  Package, Bell, TrendingUp, AlertTriangle, CheckCircle,
+  Save, MessageCircle, Minus, Plus,
+  Clock, Crown
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { updatePrice, toggleStock, StockStatus } from '../../store/productSlice';
-import { fulfillDemand, upvoteDemand } from '../../store/demandSlice';
+import { fulfillDemand } from '../../store/demandSlice';
 import { upgradeToGold } from '../../store/userSlice';
 import { shops } from '../../data/mockData';
 
 type Tab = 'priceboard' | 'demand';
-
-const WHATSAPP_NUMBER = '+91 98765 43210';
 
 function StockSelect({ value, onChange }: { value: StockStatus; onChange: (v: StockStatus) => void }) {
   const options: StockStatus[] = ['In Stock', 'Low', 'Out'];
@@ -28,9 +26,8 @@ function StockSelect({ value, onChange }: { value: StockStatus; onChange: (v: St
         <button
           key={opt}
           onClick={() => onChange(opt)}
-          className={`px-2 py-1 rounded-lg border text-xs transition-all ${
-            value === opt ? colors[opt] : 'bg-slate-50 text-slate-400 border-slate-200 hover:border-slate-300'
-          }`}
+          className={`px-2 py-1 rounded-lg border text-xs transition-all ${value === opt ? colors[opt] : 'bg-slate-50 text-slate-400 border-slate-200 hover:border-slate-300'
+            }`}
           style={{ fontWeight: value === opt ? 600 : 400 }}
         >
           {opt === 'In Stock' ? 'In' : opt}
@@ -76,10 +73,48 @@ export function VendorDashboard() {
     return avg && Number(localPrices[product.id] || product.currentPrice) > avg * 1.25;
   };
 
+  const canIncreasePrice = (product: typeof products[0]) => {
+    const avg = avgPrices[product.name];
+    const currentPrice = Number(localPrices[product.id] || product.currentPrice);
+    // Allow increase only if current price is below 25% spike threshold
+    return !avg || currentPrice < avg * 1.25;
+  };
+
+  const getMaxAllowedPrice = (product: typeof products[0]) => {
+    const avg = avgPrices[product.name];
+    return avg ? Math.floor(avg * 1.25) : Infinity;
+  };
+
+  const handlePriceChange = (productId: string, value: string, product: typeof products[0]) => {
+    const numValue = parseFloat(value);
+    const maxPrice = getMaxAllowedPrice(product);
+    
+    // If trying to set a price above the 25% spike threshold, cap it at the maximum allowed
+    if (!isNaN(numValue) && numValue > maxPrice) {
+      setLocalPrices(p => ({ ...p, [productId]: String(maxPrice) }));
+    } else {
+      setLocalPrices(p => ({ ...p, [productId]: value }));
+    }
+  };
+
   const handleSavePrice = (id: string) => {
+    const product = products.find(p => p.id === id);
+    if (!product) return;
+    
     const price = parseFloat(localPrices[id]);
+    const maxPrice = getMaxAllowedPrice(product);
+    
     if (!isNaN(price) && price > 0) {
-      dispatch(updatePrice({ id, price }));
+      // Cap the price at the maximum allowed if it exceeds the threshold
+      const finalPrice = Math.min(price, maxPrice);
+      
+      dispatch(updatePrice({ id, price: finalPrice }));
+      
+      // Update local state to reflect the capped price
+      if (finalPrice !== price) {
+        setLocalPrices(prev => ({ ...prev, [id]: String(finalPrice) }));
+      }
+      
       setSavedIds(prev => new Set(prev).add(id));
       setTimeout(() => setSavedIds(prev => { const n = new Set(prev); n.delete(id); return n; }), 2000);
     }
@@ -88,8 +123,17 @@ export function VendorDashboard() {
   const handleSaveAll = () => {
     products.forEach(p => {
       const price = parseFloat(localPrices[p.id]);
+      const maxPrice = getMaxAllowedPrice(p);
+      
       if (!isNaN(price) && price > 0) {
-        dispatch(updatePrice({ id: p.id, price }));
+        // Cap the price at the maximum allowed if it exceeds the threshold
+        const finalPrice = Math.min(price, maxPrice);
+        dispatch(updatePrice({ id: p.id, price: finalPrice }));
+        
+        // Update local state to reflect the capped price
+        if (finalPrice !== price) {
+          setLocalPrices(prev => ({ ...prev, [p.id]: String(finalPrice) }));
+        }
       }
     });
     const allIds = new Set(products.map(p => p.id));
@@ -129,11 +173,10 @@ export function VendorDashboard() {
             {/* WhatsApp Sync Button */}
             <button
               onClick={handleWhatsAppSync}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm transition-all ${
-                whatsappSynced
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm transition-all ${whatsappSynced
                   ? 'bg-green-500 text-white border-green-500'
                   : 'bg-white text-green-700 border-green-300 hover:bg-green-50'
-              }`}
+                }`}
               style={{ fontWeight: 600 }}
             >
               <MessageCircle className="w-4 h-4" />
@@ -185,9 +228,8 @@ export function VendorDashboard() {
             <button
               key={key}
               onClick={() => setTab(key)}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm transition-all ${
-                tab === key ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-              }`}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm transition-all ${tab === key ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                }`}
               style={{ fontWeight: tab === key ? 700 : 500 }}
             >
               <Icon className="w-4 h-4" />
@@ -254,7 +296,12 @@ export function VendorDashboard() {
                             </div>
                             {spike && (
                               <span className="flex items-center gap-1 bg-red-100 text-red-600 text-xs px-2 py-1 rounded-lg border border-red-200" style={{ fontWeight: 700 }}>
-                                <AlertTriangle className="w-3 h-3" /> Price Spike
+                                <AlertTriangle className="w-3 h-3" /> Price Spike - Increases Blocked
+                              </span>
+                            )}
+                            {!canIncreasePrice(product) && !spike && (
+                              <span className="flex items-center gap-1 bg-amber-100 text-amber-600 text-xs px-2 py-1 rounded-lg border border-amber-200" style={{ fontWeight: 700 }}>
+                                <AlertTriangle className="w-3 h-3" /> Max: ₹{getMaxAllowedPrice(product)}
                               </span>
                             )}
                           </div>
@@ -266,11 +313,25 @@ export function VendorDashboard() {
                               <input
                                 type="number"
                                 value={localPrices[product.id] ?? product.currentPrice}
-                                onChange={e => setLocalPrices(p => ({ ...p, [product.id]: e.target.value }))}
+                                onChange={e => handlePriceChange(product.id, e.target.value, product)}
                                 className="w-16 text-center text-slate-900 text-sm bg-transparent focus:outline-none"
                                 style={{ fontWeight: 700 }}
+                                max={getMaxAllowedPrice(product)}
                               />
-                              <button onClick={() => setLocalPrices(p => ({ ...p, [product.id]: String(currentVal + 1) }))} className="px-2 py-1.5 text-slate-500 hover:text-slate-700">
+                              <button 
+                                onClick={() => {
+                                  if (canIncreasePrice(product)) {
+                                    setLocalPrices(p => ({ ...p, [product.id]: String(currentVal + 1) }))
+                                  }
+                                }} 
+                                disabled={!canIncreasePrice(product)}
+                                className={`px-2 py-1.5 transition-colors ${
+                                  canIncreasePrice(product) 
+                                    ? 'text-slate-500 hover:text-slate-700' 
+                                    : 'text-slate-300 cursor-not-allowed'
+                                }`}
+                                title={!canIncreasePrice(product) ? 'Cannot increase price above 25% of area average' : ''}
+                              >
                                 <Plus className="w-3 h-3" />
                               </button>
                             </div>
@@ -315,13 +376,24 @@ export function VendorDashboard() {
                                 <input
                                   type="number"
                                   value={localPrices[product.id] ?? product.currentPrice}
-                                  onChange={e => setLocalPrices(p => ({ ...p, [product.id]: e.target.value }))}
+                                  onChange={e => handlePriceChange(product.id, e.target.value, product)}
                                   className="w-14 text-center text-slate-900 text-sm bg-transparent focus:outline-none py-1"
                                   style={{ fontWeight: 700 }}
+                                  max={getMaxAllowedPrice(product)}
                                 />
                                 <button
-                                  onClick={() => setLocalPrices(p => ({ ...p, [product.id]: String(currentVal + 1) }))}
-                                  className="px-1.5 py-1 text-slate-400 hover:text-slate-600"
+                                  onClick={() => {
+                                    if (canIncreasePrice(product)) {
+                                      setLocalPrices(p => ({ ...p, [product.id]: String(currentVal + 1) }))
+                                    }
+                                  }}
+                                  disabled={!canIncreasePrice(product)}
+                                  className={`px-1.5 py-1 transition-colors ${
+                                    canIncreasePrice(product) 
+                                      ? 'text-slate-400 hover:text-slate-600' 
+                                      : 'text-slate-300 cursor-not-allowed'
+                                  }`}
+                                  title={!canIncreasePrice(product) ? 'Cannot increase price above 25% of area average' : ''}
                                 >
                                   <Plus className="w-3 h-3" />
                                 </button>
@@ -334,7 +406,12 @@ export function VendorDashboard() {
                             </div>
                             {spike && (
                               <p className="text-red-500 text-xs mt-0.5" style={{ fontWeight: 600 }}>
-                                25%+ above avg
+                                25%+ above avg - Price increases blocked
+                              </p>
+                            )}
+                            {!canIncreasePrice(product) && !spike && (
+                              <p className="text-amber-600 text-xs mt-0.5" style={{ fontWeight: 600 }}>
+                                Max price: ₹{getMaxAllowedPrice(product)}
                               </p>
                             )}
                           </div>
@@ -347,9 +424,8 @@ export function VendorDashboard() {
                           <div className="col-span-1">
                             <button
                               onClick={() => handleSavePrice(product.id)}
-                              className={`px-3 py-1.5 rounded-lg text-xs transition-all ${
-                                saved ? 'bg-emerald-500 text-white' : 'bg-orange-500 text-white hover:bg-orange-600'
-                              }`}
+                              className={`px-3 py-1.5 rounded-lg text-xs transition-all ${saved ? 'bg-emerald-500 text-white' : 'bg-orange-500 text-white hover:bg-orange-600'
+                                }`}
                               style={{ fontWeight: 700 }}
                             >
                               {saved ? '✓ Saved' : 'Save'}
@@ -363,22 +439,32 @@ export function VendorDashboard() {
               </div>
 
               {/* Price Spike Legend */}
-              <div className="mt-4 flex flex-wrap gap-4 text-sm text-slate-500">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-emerald-500 rounded-full" />
-                  <span>In Stock</span>
+              <div className="mt-4 space-y-2">
+                <div className="flex flex-wrap gap-4 text-sm text-slate-500">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-emerald-500 rounded-full" />
+                    <span>In Stock</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-amber-500 rounded-full" />
+                    <span>Low Stock</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-red-500 rounded-full" />
+                    <span>Out of Stock</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-amber-500 rounded-full" />
-                  <span>Low Stock</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-red-500 rounded-full" />
-                  <span>Out of Stock</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="w-3 h-3 text-red-500" />
-                  <span className="text-red-500" style={{ fontWeight: 600 }}>Price Spike: 25%+ above local average</span>
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-amber-800 text-sm font-semibold">Anti-Monopoly Price Protection</p>
+                      <p className="text-amber-700 text-xs mt-1">
+                        Price increases are automatically blocked when your price reaches 25% above the local area average. 
+                        This helps maintain fair pricing for buyers while allowing competitive pricing flexibility.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -400,9 +486,8 @@ export function VendorDashboard() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.06 }}
-                  className={`bg-white rounded-2xl border p-5 shadow-sm ${
-                    demand.status === 'Fulfilled' ? 'border-emerald-100 opacity-60' : 'border-slate-100'
-                  }`}
+                  className={`bg-white rounded-2xl border p-5 shadow-sm ${demand.status === 'Fulfilled' ? 'border-emerald-100 opacity-60' : 'border-slate-100'
+                    }`}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">

@@ -306,9 +306,7 @@ export function Landing() {
                 transition={{ delay: i * 0.15 }}
                 className="relative text-center"
               >
-                {i < steps.length - 1 && (
-                  <div className="hidden md:block absolute top-8 left-[calc(50%+3rem)] right-[-3rem] h-px bg-dashed border-t-2 border-dashed border-orange-200" />
-                )}
+               
                 <div className="w-16 h-16 bg-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-200">
                   <span className="text-white" style={{ fontSize: '1.4rem', fontWeight: 800 }}>{num}</span>
                 </div>
