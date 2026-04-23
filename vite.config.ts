@@ -19,4 +19,28 @@ export default defineConfig({
 
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
+  
+  // Build configuration for better Netlify compatibility
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router'],
+          ui: ['lucide-react', 'framer-motion'],
+          charts: ['recharts'],
+          redux: ['@reduxjs/toolkit', 'react-redux', 'redux-persist'],
+        },
+      },
+    },
+  },
+  
+  // Ensure proper MIME types during development
+  server: {
+    fs: {
+      strict: false,
+    },
+  },
 })

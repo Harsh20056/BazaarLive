@@ -1,0 +1,24 @@
+# Headers for JavaScript modules
+/assets/*.js
+  Content-Type: text/javascript; charset=utf-8
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.mjs
+  Content-Type: text/javascript; charset=utf-8
+  Cache-Control: public, max-age=31536000, immutable
+
+# Headers for CSS files
+/assets/*.css
+  Content-Type: text/css; charset=utf-8
+  Cache-Control: public, max-age=31536000, immutable
+
+# Headers for the main HTML file
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Headers for any other JS files
+/*.js
+  Content-Type: text/javascript; charset=utf-8
+
+/*.mjs
+  Content-Type: text/javascript; charset=utf-8
