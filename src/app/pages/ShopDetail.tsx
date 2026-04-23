@@ -133,19 +133,19 @@ export function ShopDetail() {
   const out = products.filter(p => p.stockStatus === 'Out').length;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 overflow-x-hidden max-w-full">
       {/* Hero */}
-      <div className="relative h-56 sm:h-72 overflow-hidden">
+      <div className="relative h-48 sm:h-56 lg:h-72 overflow-hidden">
         <img src={shop.coverImage} alt={shop.name} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         {/* Back button */}
         <Link
           to="/buyer/explore"
-          className="absolute top-4 left-4 flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white border border-white/30 px-3 py-2 rounded-xl text-sm hover:bg-white/30 transition-colors"
+          className="absolute top-3 left-3 flex items-center gap-1 bg-white/20 backdrop-blur-sm text-white border border-white/30 px-2 py-1.5 rounded-lg text-sm hover:bg-white/30 transition-colors"
           style={{ fontWeight: 600 }}
         >
           <ArrowLeft className="w-4 h-4" />
-          Back
+          <span className="hidden sm:inline">Back</span>
         </Link>
         {/* Shop name overlay */}
         <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-8 py-6">
@@ -180,20 +180,18 @@ export function ShopDetail() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6">
+      <div className="max-w-6xl mx-auto px-2 sm:px-4 lg:px-8 py-3 sm:py-6">
         {/* Mobile rating */}
-        <div className="sm:hidden flex items-center gap-2 sm:gap-3 mb-6 bg-white rounded-2xl p-3 sm:p-4 border border-slate-100 shadow-sm overflow-hidden">
+        <div className="sm:hidden flex items-center justify-between mb-4 bg-white rounded-xl p-2 border border-slate-100 shadow-sm">
           <div className="flex items-center gap-1.5">
-            <Star className="w-4 sm:w-5 h-4 sm:h-5 text-amber-400 fill-amber-400" />
-            <span className="text-slate-900" style={{ fontWeight: 800 }}>{averageRating}</span>
+            <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+            <span className="text-slate-900 font-bold">{averageRating}</span>
+            <span className="text-slate-400 text-sm">({reviewCount})</span>
           </div>
-          <span className="text-slate-400">•</span>
-          <span className="text-slate-600 text-sm">{reviewCount} reviews</span>
-          <span className="text-slate-400">•</span>
           <span className="text-slate-600 text-sm">{shop.distance}km away</span>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="lg:grid lg:grid-cols-3 lg:gap-6 space-y-4 lg:space-y-0">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Anti-Monopoly Warning Banner */}
@@ -247,7 +245,7 @@ export function ShopDetail() {
 
             {/* Products Table */}
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-              <div className="px-3 sm:px-5 py-4 border-b border-slate-50 flex items-center justify-between">
+              <div className="px-2 sm:px-3 lg:px-5 py-3 border-b border-slate-50 flex items-center justify-between">
                 <h2 className="text-slate-900" style={{ fontWeight: 700 }}>Live Price Board</h2>
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
@@ -266,7 +264,7 @@ export function ShopDetail() {
                   return (
                     <div key={product.id}>
                       <div
-                        className={`px-3 sm:px-5 py-4 cursor-pointer hover:bg-slate-50 transition-colors ${isSpike ? 'bg-red-50/30' : ''}`}
+                        className={`px-2 sm:px-3 lg:px-5 py-3 cursor-pointer hover:bg-slate-50 transition-colors ${isSpike ? 'bg-red-50/30' : ''}`}
                         onClick={() => setExpandedProduct(isExpanded ? null : product.id)}
                       >
                         <div className="flex items-start sm:items-center justify-between gap-2">
@@ -314,7 +312,7 @@ export function ShopDetail() {
                           exit={{ opacity: 0, height: 0 }}
                           className="border-t border-slate-50 bg-slate-50/50"
                         >
-                          <div className="px-3 sm:px-5 py-4">
+                          <div className="px-2 sm:px-3 lg:px-5 py-3">
                             <div className="flex items-center justify-between mb-3">
                               <p className="text-slate-700 text-sm" style={{ fontWeight: 600 }}>
                                 7-Day Price Trend
